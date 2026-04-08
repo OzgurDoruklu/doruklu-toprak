@@ -7,7 +7,7 @@ export async function initAuth() {
     ui.setLoading(true);
     
     supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
+        if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
             await handleLoginSuccess(session.user);
         }
     });
@@ -26,6 +26,7 @@ export async function initAuth() {
 }
 
 async function handleLoginSuccess(user) {
+    if (AppState.user) return;
     AppState.user = user;
     
     const { data: profile } = await supabase
