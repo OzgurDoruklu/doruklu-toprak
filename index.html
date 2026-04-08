@@ -6,43 +6,17 @@
     <title>Toprak Doruklu - Bilgi Kartı Oyunu</title>
     <meta name="description" content="Eğlenceli Bilgi Kartı Oyunu">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.doruklu.com/style.css">
 </head>
 <body>
     <div class="blob blob-1"></div>
     <div class="blob blob-2"></div>
 
-    <!-- Alert / Bildirim Kutusu -->
     <div id="alert-box" class="alert"></div>
-
-    <!-- Yükleniyor Ekranı -->
     <div id="loading-spinner" class="loading-overlay">
         <div class="spinner"></div>
     </div>
 
-    <!-- 1. AUTH EKRANI -->
-    <div id="auth-screen" class="screen" style="display: flex;">
-        <div class="container">
-            <h1 class="gradient-text" id="auth-title">Giriş Yap</h1>
-            
-            <div class="input-group" id="name-group" style="display: none;">
-                <input type="text" id="display-name" placeholder="Adınız Soyadınız">
-            </div>
-            <div class="input-group">
-                <input type="email" id="email" placeholder="E-posta Adresi" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Şifre" required>
-            </div>
-            
-            <button id="login-btn" class="primary-btn">Giriş Yap</button>
-            <button id="register-btn" class="primary-btn" style="display: none;">Kayıt Ol</button>
-
-            <div class="toggle-text">
-                <a id="toggle-auth-mode">Hesabınız yok mu? <span>Kayıt Olun</span></a>
-            </div>
-        </div>
-    </div>
 
     <!-- 2. GAME EKRANI -->
     <div id="game-screen" class="screen">

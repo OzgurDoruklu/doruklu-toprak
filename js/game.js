@@ -1,4 +1,4 @@
-import { supabase, AppState } from './supabase-config.js';
+import { supabase, AppState } from 'https://cdn.doruklu.com/supabase-config.js';
 import { ui } from './ui.js';
 
 let currentFlashcards = [];
