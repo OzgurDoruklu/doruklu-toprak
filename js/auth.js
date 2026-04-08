@@ -5,12 +5,23 @@ import { initGame } from './game.js';
 
 export async function initAuth() {
     ui.setLoading(true);
+    
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+            await handleLoginSuccess(session.user);
+        }
+    });
+
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session) {
         await handleLoginSuccess(session.user);
     } else {
-        window.location.href = 'https://doruklu.com/?redirect_to=' + encodeURIComponent(window.location.href);
+        if (window.location.hash.includes('access_token')) {
+            // waiting for onAuthStateChange
+        } else {
+            window.location.href = 'https://doruklu.com/?redirect_to=' + encodeURIComponent(window.location.href);
+        }
     }
 }
 
