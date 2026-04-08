@@ -1,5 +1,6 @@
 import { supabase, AppState } from 'https://cdn.doruklu.com/supabase-config.js';
 import { ui } from './ui.js';
+import { ui as globalUI } from 'https://cdn.doruklu.com/ui.js';
 import { initGame } from './game.js';
 
 export async function initAuth() {
@@ -35,6 +36,11 @@ async function handleLoginSuccess(user) {
                 </div>`;
              return;
         }
+
+        globalUI.renderUserBadge(user, profile, async () => {
+            await supabase.auth.signOut();
+            window.location.href = 'https://doruklu.com';
+        });
 
         AppState.profile = profile;
         AppState.currentScore = profile.total_score || 0;
