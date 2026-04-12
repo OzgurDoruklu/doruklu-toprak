@@ -13,8 +13,8 @@ export async function initAuth() {
         document.getElementById('player-name').textContent = profile.display_name || user.email;
         document.getElementById('player-score').textContent = AppState.currentScore;
         
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
+        // "Merkezi Sisteme Dön" — sadece yönlendir, signOut yapma
+        document.getElementById('logout-btn').addEventListener('click', () => {
             window.location.href = 'https://doruklu.com';
         });
 
