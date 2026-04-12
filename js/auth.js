@@ -10,12 +10,16 @@ export async function initAuth() {
         AppState.profile = profile;
         AppState.currentScore = profile.total_score || 0;
         
-        document.getElementById('player-name').textContent = profile.display_name || user.email;
+        document.getElementById('player-name').textContent = profile.display_name || user.email.split('@')[0];
         document.getElementById('player-score').textContent = AppState.currentScore;
         
-        // "Merkezi Sisteme Dön"
-        document.getElementById('hub-back-btn')?.addEventListener('click', () => {
-            window.location.href = 'https://doruklu.com';
+        // Global Header & Badge (manageCallback yok)
+        globalUI.renderGlobalHeader("Oyunu");
+        globalUI.renderUserBadge(user, profile, async () => {
+            const { clearAllCaches } = await import('https://cdn.doruklu.com/auth.js');
+            await clearAllCaches();
+            await supabase.auth.signOut();
+            window.location.href = 'https://doruklu.com/?logout=true';
         });
 
         ui.showScreen('game-screen');

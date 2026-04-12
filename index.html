@@ -4,46 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toprak Doruklu - Bilgi Kartı Oyunu</title>
-    <meta name="description" content="Eğlenceli Bilgi Kartı Oyunu">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.doruklu.com/style.css">
+    <style>
+        body { padding-top: 80px; }
+        .score-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            color: #818cf8;
+        }
+    </style>
 </head>
 <body>
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-
     <div id="alert-box" class="alert"></div>
-    <div id="loading-spinner" class="loading-overlay">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading-spinner" class="loading-overlay"><div class="spinner"></div></div>
 
-
-    <!-- 2. GAME EKRANI -->
     <div id="game-screen" class="screen">
-        <header class="dashboard-header" style="padding: 1rem 2rem;">
-            <div style="display:flex; gap:1rem; align-items:center;">
-                <button id="hub-back-btn" class="glass-btn" style="padding:0.5rem 1rem;">← Merkezi Sisteme Dön</button>
-                <div class="sub-nav" style="display:flex; gap:0.5rem; margin-left:1rem; border-left:1px solid rgba(255,255,255,0.1); padding-left:1rem;">
-                    <button onclick="window.ui.showScreen('game-screen')" class="glass-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🎮 Oyun</button>
-                    <button onclick="window.ui.showScreen('result-screen')" class="glass-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🏆 Skorlar</button>
+        <div class="dashboard-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <span class="badge success">Oyuncu</span>
+                    <span id="player-name" style="font-weight:700; font-size:1.1rem; color:white;">--</span>
+                </div>
+                <div class="score-box">
+                    SKOR: <span id="player-score">0</span>
                 </div>
             </div>
-        </header>
 
-        <div class="game-header" style="margin-top:1rem; background:rgba(255,255,255,0.03); border-radius:12px; padding:1rem 2rem;">
-            <div>
-                <span class="badge">Oyuncu</span>
-                <span id="player-name">--</span>
+            <div id="card-container" style="display:flex; flex-direction:column; align-items:center; gap:20px;">
+                <!-- Sorular buraya JS ile basılacak -->
             </div>
-            <div class="score-box">
-                Skor: <span id="player-score">0</span>
-            </div>
-        </div>
-
-        <div id="card-container" class="container" style="background: none; box-shadow: none; border: none; align-items: center; display: flex; flex-direction: column;">
-            <!-- Sorular buraya JS ile basılacak -->
         </div>
     </div>
+
+    <!-- Result / Leaderboard Screen -->
+    <div id="result-screen" class="screen">
+        <div class="dashboard-content">
+            <h2 class="gradient-text">En İyiler</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>Sıralama</th><th>Oyuncu</th><th>Skor</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
+            </div>
+            <button class="primary-btn" onclick="window.location.reload()" style="margin-top:20px;">Tekrar Oyna</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
 
     <script type="module" src="js/app.js"></script>
 </body>
