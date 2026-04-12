@@ -13,8 +13,8 @@ export async function initAuth() {
         document.getElementById('player-name').textContent = profile.display_name || user.email;
         document.getElementById('player-score').textContent = AppState.currentScore;
         
-        // "Merkezi Sisteme Dön" — sadece yönlendir, signOut yapma
-        document.getElementById('logout-btn').addEventListener('click', () => {
+        // "Merkezi Sisteme Dön"
+        document.getElementById('hub-back-btn')?.addEventListener('click', () => {
             window.location.href = 'https://doruklu.com';
         });
 

@@ -42,3 +42,5 @@ export const ui = {
         setTimeout(() => anim.remove(), 1000);
     }
 };
+
+window.ui = ui;

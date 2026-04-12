@@ -20,7 +20,17 @@
 
     <!-- 2. GAME EKRANI -->
     <div id="game-screen" class="screen">
-        <div class="game-header">
+        <header class="dashboard-header" style="padding: 1rem 2rem;">
+            <div style="display:flex; gap:1rem; align-items:center;">
+                <button id="hub-back-btn" class="glass-btn" style="padding:0.5rem 1rem;">← Merkezi Sisteme Dön</button>
+                <div class="sub-nav" style="display:flex; gap:0.5rem; margin-left:1rem; border-left:1px solid rgba(255,255,255,0.1); padding-left:1rem;">
+                    <button onclick="window.ui.showScreen('game-screen')" class="glass-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🎮 Oyun</button>
+                    <button onclick="window.ui.showScreen('result-screen')" class="glass-btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;">🏆 Skorlar</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-header" style="margin-top:1rem; background:rgba(255,255,255,0.03); border-radius:12px; padding:1rem 2rem;">
             <div>
                 <span class="badge">Oyuncu</span>
                 <span id="player-name">--</span>
@@ -28,7 +38,6 @@
             <div class="score-box">
                 Skor: <span id="player-score">0</span>
             </div>
-            <button id="logout-btn" style="background: none; border: 1px solid white; color: white; padding: 5px 10px; border-radius: 8px; cursor: pointer;">Çıkış</button>
         </div>
 
         <div id="card-container" class="container" style="background: none; box-shadow: none; border: none; align-items: center; display: flex; flex-direction: column;">
