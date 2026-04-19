@@ -1,10 +1,12 @@
 export const ui = {
     showScreen: (screenId) => {
-        const screens = ['auth-screen', 'game-screen', 'result-screen'];
+        const screens = ['auth-screen', 'start-screen', 'game-screen', 'result-screen'];
         screens.forEach(s => {
-            document.getElementById(s).style.display = s === screenId ? 'flex' : 'none';
+            const el = document.getElementById(s);
+            if (el) el.style.display = s === screenId ? 'flex' : 'none';
         });
     },
+
     
     showError: (msg) => {
         const el = document.getElementById('alert-box');

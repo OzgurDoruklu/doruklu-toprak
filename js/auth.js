@@ -22,7 +22,7 @@ export async function initAuth() {
             window.location.href = 'https://doruklu.com/?logout=true';
         });
 
-        ui.showScreen('game-screen');
-        initGame();
+        initGame(); // Bu fonksiyon artık Start Screen'i tetikliyor
+
     });
 }

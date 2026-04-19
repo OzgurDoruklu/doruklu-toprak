@@ -19,18 +19,54 @@
             font-weight: 700;
             color: #818cf8;
         }
+
+        .hero-title {
+            font-size: 3rem; font-weight: 800; margin-bottom: 1rem;
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .summary-card {
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 3rem; text-align: center; max-width: 500px; width: 100%;
+        }
+
+        .stat-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0;
+        }
+        .stat-item {
+            padding: 1rem; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);
+        }
     </style>
 </head>
 <body>
     <div id="alert-box" class="alert"></div>
     <div id="loading-spinner" class="loading-overlay"><div class="spinner"></div></div>
 
+    <!-- 1. START SCREEN (NEW) -->
+    <div id="start-screen" class="screen" style="align-items: center; justify-content: center; padding: 2rem;">
+        <div class="summary-card">
+            <h2 style="color:var(--text-secondary); text-transform:uppercase; letter-spacing:3px; font-size:0.9rem; margin-bottom:1rem;">Hoş Geldiniz</h2>
+            <h1 id="welcome-name" class="hero-title">--</h1>
+            <p style="color:var(--text-secondary); margin-bottom: 2rem; line-height:1.6;">Bilgi dolu bir maceraya hazır mısın? En yeni sorular seni bekliyor.</p>
+            
+            <div style="background:rgba(99, 102, 241, 0.05); padding:1.5rem; border-radius:20px; margin-bottom:2.5rem;">
+                <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:5px;">MEVCUT PUANIN</div>
+                <div id="start-score-val" style="font-size:2.5rem; font-weight:800; color:var(--primary);">0</div>
+            </div>
+
+            <button id="start-game-btn" class="primary-btn" style="padding:1.4rem; font-size:1.2rem; border-radius:18px;">Hadi Başlayalım!</button>
+        </div>
+    </div>
+
+    <!-- 2. GAME SCREEN -->
     <div id="game-screen" class="screen">
         <div class="dashboard-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
                 <div style="display:flex; align-items:center; gap:12px;">
                     <span class="badge success">Oyuncu</span>
-                    <span id="player-name" style="font-weight:700; font-size:1.1rem; color:white;">--</span>
+                    <span id="player-name" style="font-weight:700; font-size:1.1rem; color:var(--text-main);">--</span>
                 </div>
                 <div class="score-box">
                     SKOR: <span id="player-score">0</span>
@@ -43,22 +79,13 @@
         </div>
     </div>
 
-    <!-- Result / Leaderboard Screen -->
-    <div id="result-screen" class="screen">
-        <div class="dashboard-content">
-            <h2 class="gradient-text">En İyiler</h2>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr><th>Sıralama</th><th>Oyuncu</th><th>Skor</th></tr>
-                    </thead>
-                    <tbody id="leaderboard-body"></tbody>
-                </table>
-            </div>
-            <button class="primary-btn" onclick="window.location.reload()" style="margin-top:20px;">Tekrar Oyna</button>
+    <!-- 3. RESULT SCREEN (POLISHED) -->
+    <div id="result-screen" class="screen" style="align-items: center; justify-content: center; padding: 2rem;">
+        <div id="summary-container" class="summary-card">
+            <!-- Dinamik özet buraya gelecek -->
         </div>
     </div>
 
-    <script type="module" src="js/app.js?v=2026.04.19.2"></script>
+    <script type="module" src="js/app.js?v=2026.04.19.4"></script>
 </body>
 </html>
