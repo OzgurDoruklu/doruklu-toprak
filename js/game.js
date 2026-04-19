@@ -22,11 +22,24 @@ export async function initGame() {
 }
 
 async function fetchFlashcards() {
-    const { data, error } = await supabase.from('flashcards').select('*');
+    console.log("[Toprak Game] Soru havuzu güncelleniyor...");
+    const { data, error } = await supabase
+        .from('flashcards')
+        .select('*')
+        .order('created_at', { ascending: false }); // Yeniler en üstte
+    
+    if (error) {
+        console.error("Soru çekme hatası:", error);
+        return;
+    }
+
     if (data) {
-        currentFlashcards = data.sort(() => 0.5 - Math.random()).slice(0, 10);
+        console.log(`[Toprak Game] Havuzda toplam ${data.length} soru bulundu.`);
+        // Test/Ekran görünürlüğü için şimdilik en yeni 15 soruyu alıyoruz
+        currentFlashcards = data.slice(0, 15);
     }
 }
+
 
 function showCard(index) {
     if (index >= currentFlashcards.length) {
