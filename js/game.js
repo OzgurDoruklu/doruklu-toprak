@@ -1,4 +1,5 @@
 import { supabase, AppState } from 'https://cdn.doruklu.com/supabase-config.js';
+import { esc } from 'https://cdn.doruklu.com/util.js';
 import { ui } from './ui.js';
 
 let currentFlashcards = [];
@@ -74,54 +75,67 @@ function showCard(index) {
     const card = currentFlashcards[index];
     const container = document.getElementById('card-container');
     
+    // Şık metinleri artık HTML'e gömülmüyor; sadece dizideki INDEX taşınıyor.
+    // Böylece tırnak/açılı parantez içeren bir şık ne öznitelikten ne de onclick'ten kaçabiliyor.
+    const options = Array.isArray(card.options) ? card.options : [];
+
     let html = `
         <div class="app-card" style="width:100%; max-width:500px; text-align:center;">
             <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; letter-spacing:1px;">SORU ${index + 1} / ${currentFlashcards.length}</div>
-            <h2 style="margin:0 0 2rem 0; line-height:1.4; color:var(--text-main);">${card.content}</h2>
+            <h2 style="margin:0 0 2rem 0; line-height:1.4; color:var(--text-main);">${esc(card.content)}</h2>
             <div style="display:grid; grid-template-columns:1fr; gap:12px; width:100%;">
     `;
-        
-    if (card.question_type === 'single_choice' && card.options) {
-        card.options.forEach(opt => {
-            html += `<button class="primary-btn" style="background:var(--glass-bg); color:var(--text-main); border:1px solid var(--glass-border); padding:1rem;" onclick="window.submitAnswer('${opt.replace(/'/g, "\\'")}')">${opt}</button>`;
+
+    if (card.question_type === 'single_choice' && options.length) {
+        options.forEach((opt, i) => {
+            html += `<button class="primary-btn js-option" data-opt="${i}" style="background:var(--glass-bg); color:var(--text-main); border:1px solid var(--glass-border); padding:1rem;">${esc(opt)}</button>`;
         });
-    } else if (card.question_type === 'multi_choice' && card.options) {
-        card.options.forEach((opt, i) => {
+    } else if (card.question_type === 'multi_choice' && options.length) {
+        options.forEach((opt, i) => {
             html += `
                 <label style="display:flex; align-items:center; gap:12px; background:var(--glass-bg); padding:1rem; border-radius:12px; cursor:pointer; border:1px solid var(--glass-border);">
-                    <input type="checkbox" value="${opt.replace(/'/g, "\\'")}" id="chk-${i}" style="width:20px; height:20px;">
-                    <span style="color:var(--text-main); font-weight:500;">${opt}</span>
+                    <input type="checkbox" class="js-multi" data-opt="${i}" id="chk-${i}" style="width:20px; height:20px;">
+                    <span style="color:var(--text-main); font-weight:500;">${esc(opt)}</span>
                 </label>
             `;
         });
-        html += `<button class="primary-btn" style="margin-top:10px;" onclick="window.submitMulti()">Seçimleri Onayla</button>`;
+        html += `<button class="primary-btn js-multi-submit" style="margin-top:10px;">Seçimleri Onayla</button>`;
     } else if (card.question_type === 'free_text') {
         html += `
             <div class="input-group">
                 <input type="text" id="free-text-input" placeholder="Cevabınızı buraya yazın..." style="text-align:center;">
             </div>
-            <button class="primary-btn" onclick="window.submitFree()">Cevabı Gönder</button>
+            <button class="primary-btn js-free-submit">Cevabı Gönder</button>
         `;
     }
-    
+
     html += `</div></div>`;
     container.innerHTML = html;
+
+    // Dinleyicileri DOM oluştuktan sonra bağla (inline onclick yok)
+    container.querySelectorAll('.js-option').forEach(btn => {
+        btn.addEventListener('click', () => checkAnswer(options[Number(btn.dataset.opt)]));
+    });
+
+    const multiSubmit = container.querySelector('.js-multi-submit');
+    if (multiSubmit) {
+        multiSubmit.addEventListener('click', () => {
+            const picked = Array.from(container.querySelectorAll('.js-multi:checked'))
+                .map(cb => options[Number(cb.dataset.opt)]);
+            if (picked.length === 0) { ui.showError("En az bir seçenek seçmelisin!"); return; }
+            checkAnswer(picked);
+        });
+    }
+
+    const freeSubmit = container.querySelector('.js-free-submit');
+    if (freeSubmit) {
+        freeSubmit.addEventListener('click', () => {
+            const input = document.getElementById('free-text-input');
+            if (!input.value.trim()) { ui.showError("Bir cevap yazmalısın!"); return; }
+            checkAnswer(input.value.trim());
+        });
+    }
 }
-
-window.submitAnswer = (answer) => checkAnswer(answer);
-
-window.submitMulti = () => {
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-    const answers = Array.from(checkboxes).map(cb => cb.value);
-    if (answers.length === 0) { ui.showError("En az bir seçenek seçmelisin!"); return; }
-    checkAnswer(answers);
-};
-
-window.submitFree = () => {
-    const input = document.getElementById('free-text-input');
-    if (!input.value.trim()) { ui.showError("Bir cevap yazmalısın!"); return; }
-    checkAnswer(input.value.trim());
-};
 
 async function checkAnswer(userAnswer) {
     const card = currentFlashcards[currentCardIndex];
@@ -145,21 +159,23 @@ async function checkAnswer(userAnswer) {
     AppState.questionsAnswered.push({ type: card.question_type, correct: isCorrect });
     
     ui.updateScore(AppState.currentScore, isCorrect);
-    
-    // DB Güncelleme
-    supabase.from('profiles').update({ total_score: AppState.currentScore }).eq('id', AppState.user.id).then();
-    
+
+    // NOT: total_score artık BURADAN yazılmıyor.
+    // Puan, oyun bitiminde game_sessions'a yazılan score_delta üzerinden DB trigger'ı ile
+    // sunucuda işleniyor (bkz. migrations/2026-08-22-security.sql). Aksi halde konsoldan
+    // tek satırla liderlik tablosunun tepesine çıkılabiliyordu.
+
     const container = document.getElementById('card-container');
     container.innerHTML = `
         <div class="summary-card" style="padding:2rem; border-color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}">
             <div style="font-size:3rem; margin-bottom:1rem;">${isCorrect ? '✨' : '❌'}</div>
             <h2 style="color:${isCorrect ? '#10b981' : '#ef4444'}; margin-bottom:1.5rem;">${isCorrect ? 'Harika! Doğru Cevap' : 'Hay aksi! Yanlış Cevap'}</h2>
-            <button class="primary-btn" onclick="window.nextCard()">Sıradaki Soruya Geç</button>
+            <button class="primary-btn js-next-card">Sıradaki Soruya Geç</button>
         </div>
     `;
+    container.querySelector('.js-next-card')
+             .addEventListener('click', () => showCard(currentCardIndex + 1));
 }
-
-window.nextCard = () => showCard(currentCardIndex + 1);
 
 async function endGame() {
     ui.setLoading(true);
