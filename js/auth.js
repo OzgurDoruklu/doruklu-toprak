@@ -13,14 +13,11 @@ export async function initAuth() {
         document.getElementById('player-name').textContent = profile.display_name || user.email.split('@')[0];
         document.getElementById('player-score').textContent = AppState.currentScore;
         
-        // Global Header & Badge (manageCallback yok)
+        // Global Header
+        // Rozet artık CDN auth.js tarafından, onSuccess'ten SONRA render ediliyor
+        // (performGlobalLogout callback'iyle). Buradaki ikinci çağrı kaldırıldı —
+        // yerel kopya çıkış sırasını yanlış yapıyordu (clearAllCaches, signOut'tan önce).
         globalUI.renderGlobalHeader("Oyunu");
-        globalUI.renderUserBadge(user, profile, async () => {
-            const { clearAllCaches } = await import('https://cdn.doruklu.com/auth.js');
-            await clearAllCaches();
-            await supabase.auth.signOut();
-            window.location.href = 'https://doruklu.com/?logout=true';
-        });
 
         initGame(); // Bu fonksiyon artık Start Screen'i tetikliyor
 
