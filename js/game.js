@@ -4,6 +4,7 @@ import { ui } from './ui.js';
 
 let currentFlashcards = [];
 let currentCardIndex = 0;
+let _dogrulamaSuruyor = false;   // cevap doğrulama artık ağ üzerinden — çift gönderimi engelle
 
 export async function initGame() {
     // 1. Önce Start Screen Ayarlarını Yap
@@ -42,11 +43,13 @@ export async function initGame() {
 }
 
 async function fetchFlashcards() {
+    // correct_answer BİLEREK çekilmiyor — DB tarafında da client'a kapalı.
+    // Doğrulama check_flashcard_answer() RPC'siyle sunucuda yapılıyor.
     const { data, error } = await supabase
         .from('flashcards')
-        .select('*')
+        .select('id, question_type, content, options')
         .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
     if (data) {
         // En yeni 15 soruyu al ve karıştır (randomize)
@@ -138,20 +141,28 @@ function showCard(index) {
 }
 
 async function checkAnswer(userAnswer) {
+    if (_dogrulamaSuruyor) return;   // çift tıklama / ardışık istek koruması
+    _dogrulamaSuruyor = true;
+
     const card = currentFlashcards[currentCardIndex];
-    let isCorrect = false;
-    
-    if (card.question_type === 'single_choice') {
-        isCorrect = userAnswer === card.correct_answer;
-    } else if (card.question_type === 'multi_choice') {
-        const correctArr = Array.isArray(card.correct_answer) ? card.correct_answer : [];
-        if (Array.isArray(userAnswer) && userAnswer.length === correctArr.length) {
-            isCorrect = userAnswer.every(val => correctArr.includes(val));
-        }
-    } else if (card.question_type === 'free_text') {
-        isCorrect = String(userAnswer).toLowerCase() === String(card.correct_answer).toLowerCase();
+
+    // Cevap SUNUCUDA doğrulanıyor. correct_answer artık tarayıcıya hiç inmiyor;
+    // RPC yalnızca boolean döner (bkz. migrations/2026-08-22d-cevap-dogrulama-rpc.sql).
+    let isCorrect;
+    try {
+        const { data, error } = await supabase.rpc('check_flashcard_answer', {
+            p_card_id: card.id,
+            p_answer: userAnswer
+        });
+        if (error) throw error;
+        isCorrect = data === true;
+    } catch (err) {
+        console.error('[Oyun] Cevap doğrulanamadı:', err);
+        ui.showError('Cevap doğrulanamadı, tekrar dene.');
+        _dogrulamaSuruyor = false;
+        return;   // puan/sayaç bozulmasın diye hiçbir şey işlenmiyor
     }
-    
+
     let delta = isCorrect ? 3 : -1;
     AppState.currentScore += delta;
     
@@ -175,6 +186,8 @@ async function checkAnswer(userAnswer) {
     `;
     container.querySelector('.js-next-card')
              .addEventListener('click', () => showCard(currentCardIndex + 1));
+
+    _dogrulamaSuruyor = false;
 }
 
 async function endGame() {
